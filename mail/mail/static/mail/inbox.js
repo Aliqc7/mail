@@ -37,6 +37,9 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
+
+  localStorage.setItem("mail_view", String(mailbox));
+
     //Show the mails in the mailbox
     const emailsView = document.querySelector('#emails-view')
     fetch(`/emails/${mailbox}`)
@@ -88,13 +91,15 @@ function send_mail(event){
 
 function view_mail(event){
     event.preventDefault();
-    document.querySelector('#single_email-view').style.display = 'block';
+    const mail_div_element = document.querySelector("#single_email-view");
+    mail_div_element.style.display = 'block';
+
     email_id = event.target.id
+    
 
     fetch(`/emails/${email_id}`)
     .then(response => response.json())
-    .then(email => {
-        const mail_div_element = document.querySelector("#single_email-view");
+    .then(email => {        
         const sender_el = document.createElement('h4');
         sender_el.textContent = `Sender: ${email.sender}`;
         const recipients_el = document.createElement('h4');
@@ -110,10 +115,23 @@ function view_mail(event){
         mail_div_element.innerHTML = ""
         mail_div_element.append(sender_el, recipients_el, subject_el, timestamp_el, body_el);
 
-        email_id = email.id;
-        mark_as_read(email_id);
 
-    });   
+        const current_view = localStorage.getItem("mail_view");
+        if (current_view === "inbox") {
+         const archive_btn = document.createElement('button');
+         archive_btn.textContent = "Archive";
+         archive_btn.addEventListener('click', () => mark_as_archived(email_id));
+         mail_div_element.append(archive_btn);
+        } else if (current_view === "archive") {
+            const archive_btn = document.createElement('button');
+            archive_btn.textContent = "Unarchive";
+            archive_btn.addEventListener('click', () => unarchive(email_id));
+            mail_div_element.append(archive_btn);
+        }
+
+    });
+    
+
 }
 
 function mark_as_read(email_id){
@@ -123,6 +141,24 @@ function mark_as_read(email_id){
             read: true
         })
     })
+}
 
+function mark_as_archived(email_id){
+    fetch(`/emails/${email_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            archived: true
+        })
+    })    
+    .then(load_mailbox('inbox'));
+}
 
+function unarchive(email_id){
+    fetch(`/emails/${email_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            archived: false
+        })
+    })    
+    .then(load_mailbox('inbox'));
 }
