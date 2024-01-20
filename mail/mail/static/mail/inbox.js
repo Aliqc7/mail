@@ -110,8 +110,19 @@ function view_mail(event){
         mail_div_element.innerHTML = ""
         mail_div_element.append(sender_el, recipients_el, subject_el, timestamp_el, body_el);
 
-    });
+        email_id = email.id;
+        mark_as_read(email_id);
+
+    });   
+}
+
+function mark_as_read(email_id){
+    fetch(`/emails/${email_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            read: true
+        })
+    })
 
 
-    
 }
