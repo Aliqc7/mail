@@ -122,6 +122,12 @@ function view_mail(event){
          archive_btn.textContent = "Archive";
          archive_btn.addEventListener('click', () => mark_as_archived(email_id));
          mail_div_element.append(archive_btn);
+        
+         const reply_btn = document.createElement('button');
+         reply_btn.textContent = "Reply";
+         reply_btn.addEventListener('click', () => reply_to_mail(email));
+         mail_div_element.append(reply_btn);
+
         } else if (current_view === "archive") {
             const archive_btn = document.createElement('button');
             archive_btn.textContent = "Unarchive";
@@ -161,4 +167,21 @@ function unarchive(email_id){
         })
     })    
     .then(load_mailbox('inbox'));
+}
+
+function reply_to_mail(email){
+    console.log(email)
+    document.querySelector('#emails-view').style.display = 'none';
+    document.querySelector('#single_email-view').style.display = 'none';
+    document.querySelector('#compose-view').style.display = 'block';
+
+    var subject = email.subject;
+    const subject_regex =/^Re:/
+    if (!subject_regex.test(subject)){
+        subject = `Re:${subject}`
+    }
+
+    document.querySelector('#compose-recipients').value = email.sender;
+    document.querySelector('#compose-subject').value = subject;
+    document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote: \r\n ${email.body}`;
 }
