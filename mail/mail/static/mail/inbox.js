@@ -115,25 +115,8 @@ function view_mail(event){
         mail_div_element.innerHTML = ""
         mail_div_element.append(sender_el, recipients_el, subject_el, timestamp_el, body_el);
 
-
-        const current_view = localStorage.getItem("mail_view");
-        if (current_view === "inbox") {
-         const archive_btn = document.createElement('button');
-         archive_btn.textContent = "Archive";
-         archive_btn.addEventListener('click', () => mark_as_archived(email_id));
-         mail_div_element.append(archive_btn);
-        
-         const reply_btn = document.createElement('button');
-         reply_btn.textContent = "Reply";
-         reply_btn.addEventListener('click', () => reply_to_mail(email));
-         mail_div_element.append(reply_btn);
-
-        } else if (current_view === "archive") {
-            const archive_btn = document.createElement('button');
-            archive_btn.textContent = "Unarchive";
-            archive_btn.addEventListener('click', () => unarchive(email_id));
-            mail_div_element.append(archive_btn);
-        }
+        show_archive_button(email);
+        show_reply_button(email);
 
     });
     
@@ -185,3 +168,33 @@ function reply_to_mail(email){
     document.querySelector('#compose-subject').value = subject;
     document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote: \r\n ${email.body}`;
 }
+
+function show_archive_button(email) {
+    const mail_div_element = document.querySelector("#single_email-view");
+    const current_view = localStorage.getItem("mail_view");
+    if (current_view === "inbox") {
+     const archive_btn = document.createElement('button');
+     archive_btn.textContent = "Archive";
+     archive_btn.addEventListener('click', () => mark_as_archived(email.id));
+     mail_div_element.append(archive_btn);
+    
+    } else if (current_view === "archive") {
+        const archive_btn = document.createElement('button');
+        archive_btn.textContent = "Unarchive";
+        archive_btn.addEventListener('click', () => unarchive(email.id));
+        mail_div_element.append(archive_btn);
+    }
+}
+
+function show_reply_button(email) {
+    const mail_div_element = document.querySelector("#single_email-view");
+    const current_view = localStorage.getItem("mail_view");
+    if (current_view === "inbox") {   
+    const reply_btn = document.createElement('button');
+    reply_btn.textContent = "Reply";
+    reply_btn.addEventListener('click', () => reply_to_mail(email));
+    mail_div_element.append(reply_btn);
+    }
+}
+
+
